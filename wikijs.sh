@@ -11,7 +11,19 @@ echo "
 "
 
 install() {
-    #Install
+    if command -v docker &> /dev/null; then
+        echo "Docker is already installed. Version: $(docker --version)"
+
+    else
+        echo "Docker is not installed."
+        echo "Docker is going to be installed"
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        echo "Running Docker installation script..."
+        sudo sh get-docker.sh
+        echo "Removing Docker installation script..."
+        rm get-docker.sh
+        echo "Deploying Wiki.js..."
+    fi
 }
 
 update_system() {
