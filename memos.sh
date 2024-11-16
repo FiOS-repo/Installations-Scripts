@@ -26,6 +26,16 @@ install() {
         else
             echo "Error: Failed to deploy Memos."
         fi
+        echo "Setting up Firewall..."
+        sudo ufw allow 5230/tcp
+        sudo ufw status
+        sudo ufw enable
+        if [ $? -eq 0 ]; then
+        echo "Firewall setup completed successfully."
+        else
+        echo "Error: Failed to set up Firewall."
+        fi
+        
     else
         echo "Error: Failed to download Docker installation script."
     fi
