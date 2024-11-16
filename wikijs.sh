@@ -10,22 +10,19 @@ echo "
                                                                                                
 "
 
-install() {
+install_docker_and_wiki() {
     if command -v docker &> /dev/null; then
         echo "Docker is already installed. Version: $(docker --version)"
-
     else
-        echo "Docker is not installed."
-        echo "Docker is going to be installed"
+        echo "Docker is not installed. Installing Docker..."
         curl -fsSL https://get.docker.com -o get-docker.sh
-        echo "Running Docker installation script..."
         sudo sh get-docker.sh
-        echo "Removing Docker installation script..."
         rm get-docker.sh
-        echo "Deploying Wiki.js..."
+        echo "Docker installed successfully."
     fi
-    echo "Run PostgreSQL (in Docker)"
-    docker network create wiki-net
+
+    echo "Setting up PostgreSQL (in Docker)..."
+    docker network create wiki-net || echo "Network 'wiki-net' already exists."
     docker run -d \
       --name wiki-db \
       --network wiki-net \
@@ -36,9 +33,7 @@ install() {
       --restart unless-stopped \
       postgres:15-alpine
 
-    }
-
-    echo "Run Wiki.js"
+    echo "Deploying Wiki.js..."
     docker run -d \
         --name wiki \
         --network wiki-net \
@@ -51,15 +46,17 @@ install() {
         -p 80:3000 \
         --restart unless-stopped \
         ghcr.io/requarks/wiki:2
-    echo "Editing firewall"
-    sudo ufw allow 5230/tcp
-    sudo ufw status
+
+    echo "Configuring firewall..."
+    sudo ufw allow 80/tcp
+    sudo ufw reload
     sudo ufw enable
     if [ $? -eq 0 ]; then
         echo "Firewall setup completed successfully."
     else
         echo "Error: Failed to set up Firewall."
     fi
+}
 
 update_system() {
     echo "Updating the system..."
@@ -68,8 +65,8 @@ update_system() {
         echo "System update completed successfully."
     else
         echo "Error: System update failed."
+        exit 1
     fi
-    install
 }
 
 if [ -f /etc/os-release ]; then
@@ -77,23 +74,26 @@ if [ -f /etc/os-release ]; then
     if [ "$ID" == "ubuntu" ]; then
         echo "The system is Ubuntu."
 
-        # Ask the user if they want to update
-        read -p "Do you want to update the system? (y/n): " response
+        read -p "Do you want to update the system before installing Docker and Wiki.js? (y/n): " response
         case $response in
             [Yy]* )
                 update_system
                 ;;
             [Nn]* )
-                echo "System update skipped."
-                install
+                echo "Skipping system update."
                 ;;
             * )
                 echo "Invalid response. Please answer y or n."
+                exit 1
                 ;;
         esac
+
+        install_docker_and_wiki
     else
         echo "This script is intended for Ubuntu systems only."
+        exit 1
     fi
 else
-    echo "Cannot determine the operating system."
+    echo "Cannot determine the operating system. Aborting."
+    exit 1
 fi
