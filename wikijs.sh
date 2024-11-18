@@ -1,6 +1,11 @@
 #!/bin/bash
 
-echo "
+# Define log function with blue background
+log() {
+    echo -e "\e[44m$1\e[0m"
+}
+
+log "
 ███████╗██╗███╗   ██╗███╗   ██╗███████╗    ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
 ██╔════╝██║████╗  ██║████╗  ██║██╔════╝    ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
 █████╗  ██║██╔██╗ ██║██╔██╗ ██║███████╗    ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
@@ -12,17 +17,17 @@ echo "
 
 install_docker_and_wiki() {
     if command -v docker &> /dev/null; then
-        echo "Docker is already installed. Version: $(docker --version)"
+        log "Docker is already installed. Version: $(docker --version)"
     else
-        echo "Docker is not installed. Installing Docker..."
+        log "Docker is not installed. Installing Docker..."
         curl -fsSL https://get.docker.com -o get-docker.sh
         sudo sh get-docker.sh
         rm get-docker.sh
-        echo "Docker installed successfully."
+        log "Docker installed successfully."
     fi
 
-    echo "Setting up PostgreSQL (in Docker)..."
-    docker network create wiki-net || echo "Network 'wiki-net' already exists."
+    log "Setting up PostgreSQL (in Docker)..."
+    docker network create wiki-net || log "Network 'wiki-net' already exists."
     docker run -d \
       --name wiki-db \
       --network wiki-net \
@@ -33,7 +38,7 @@ install_docker_and_wiki() {
       --restart unless-stopped \
       postgres:15-alpine
 
-    echo "Deploying Wiki.js..."
+    log "Deploying Wiki.js..."
     docker run -d \
         --name wiki \
         --network wiki-net \
@@ -47,24 +52,24 @@ install_docker_and_wiki() {
         --restart unless-stopped \
         ghcr.io/requarks/wiki:2
 
-    echo "Configuring firewall..."
+    log "Configuring firewall..."
     sudo ufw allow 80/tcp
     sudo ufw reload
     sudo ufw enable
     if [ $? -eq 0 ]; then
-        echo "Firewall setup completed successfully."
+        log "Firewall setup completed successfully."
     else
-        echo "Error: Failed to set up Firewall."
+        log "Error: Failed to set up Firewall."
     fi
 }
 
 update_system() {
-    echo "Updating the system..."
+    log "Updating the system..."
     sudo apt update && sudo apt upgrade -y
     if [ $? -eq 0 ]; then
-        echo "System update completed successfully."
+        log "System update completed successfully."
     else
-        echo "Error: System update failed."
+        log "Error: System update failed."
         exit 1
     fi
 }
@@ -72,7 +77,7 @@ update_system() {
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     if [ "$ID" == "ubuntu" ]; then
-        echo "The system is Ubuntu."
+        log "The system is Ubuntu."
 
         read -p "Do you want to update the system before installing Docker and Wiki.js? (y/n): " response
         case $response in
@@ -80,20 +85,20 @@ if [ -f /etc/os-release ]; then
                 update_system
                 ;;
             [Nn]* )
-                echo "Skipping system update."
+                log "Skipping system update."
                 ;;
             * )
-                echo "Invalid response. Please answer y or n."
+                log "Invalid response. Please answer y or n."
                 exit 1
                 ;;
         esac
 
         install_docker_and_wiki
     else
-        echo "This script is intended for Ubuntu systems only."
+        log "This script is intended for Ubuntu systems only."
         exit 1
     fi
 else
-    echo "Cannot determine the operating system. Aborting."
+    log "Cannot determine the operating system. Aborting."
     exit 1
 fi
