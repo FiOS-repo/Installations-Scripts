@@ -8,6 +8,23 @@ log_success() {
     echo -e "\e[42m$1\e[0m"
 }
 
+# Initialize the FORCE_BYPASS flag
+FORCE_BYPASS=false
+
+# Parse command-line arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --force)
+            FORCE_BYPASS=true
+            ;;
+        *)
+            log "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
+
 
 echo "
 ███████╗██╗███╗   ██╗███╗   ██╗███████╗    ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
@@ -18,6 +35,7 @@ echo "
 ╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝  ╚═══╝╚══════╝    ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
                                                                                                
 "
+
 
 install_docker_and_wiki() {
     if command -v docker &> /dev/null; then
@@ -83,8 +101,12 @@ update_system() {
 
 if [ -f /etc/os-release ]; then
     . /etc/os-release
-    if [[ "$ID" == "ubuntu" || "$ID_LIKE" == *"debian"* ]]; then
-        log "The system is Ubuntu."
+    if [[ "$ID" == "ubuntu" || "$ID_LIKE" == *"debian"* || "$FORCE_BYPASS" == true ]]; then
+        if [ "$FORCE_BYPASS" == true ]; then
+            log "Bypassing system requirement check as --force was used."
+        else
+            log "The system is Debian-based."
+        fi
 
         read -p "Do you want to update the system before installing Docker and Wiki.js? (y/n): " response
         case $response in
@@ -102,10 +124,15 @@ if [ -f /etc/os-release ]; then
 
         install_docker_and_wiki
     else
-        log "This script is intended for Ubuntu systems only."
+        log "This script is intended for Debian-based systems only. Use --force to bypass this check."
         exit 1
     fi
 else
-    log "Cannot determine the operating system. Aborting."
-    exit 1
+    if [ "$FORCE_BYPASS" == true ]; then
+        log "Bypassing system requirement check as --force was used."
+        install_docker_and_wiki
+    else
+        log "Cannot determine the operating system. Use --force to bypass this check."
+        exit 1
+    fi
 fi
