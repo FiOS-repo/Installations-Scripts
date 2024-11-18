@@ -4,6 +4,10 @@
 log() {
     echo -e "\e[44m$1\e[0m"
 }
+log_success() {
+    echo -e "\e[42m$1\e[0m"
+}
+
 
 log "
 ███████╗██╗███╗   ██╗███╗   ██╗███████╗    ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
@@ -61,6 +65,9 @@ install_docker_and_wiki() {
     else
         log "Error: Failed to set up Firewall."
     fi
+
+    log_success "Wiki.js is now sucssesfully installed!"
+    log_success "Thanks for using Finn's scripts!"
 }
 
 update_system() {
