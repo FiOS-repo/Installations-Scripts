@@ -83,7 +83,7 @@ update_system() {
 
 if [ -f /etc/os-release ]; then
     . /etc/os-release
-    if [ "$ID" == "ubuntu" ]; then
+    if [[ "$ID" == "ubuntu" || "$ID_LIKE" == *"debian"* ]]; then
         log "The system is Ubuntu."
 
         read -p "Do you want to update the system before installing Docker and Wiki.js? (y/n): " response
