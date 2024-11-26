@@ -16,22 +16,19 @@ echo "
 "
 
 yesorno () {
-    if [ $FORCE = "--force" ];
-    then
-        echo "Running Script without Yes or No prompts"
+    if [[ "$FORCE" == "--force" ]]; then
+        echo "Running script without Yes or No prompts"
         return 1
     else
-        read -p "Do you want to proceed? (yes/no) " yn
-
-        case $yn in 
-	        yes ) return 1;;
-	        no ) return 0;
-		        exit;;
-	        * ) echo invalid response;
-
-esac
+        read -p "$1 (yes/no) " yn
+        case $yn in
+            yes) return 1 ;;
+            no) return 0 ;;
+            *) echo "Invalid response"; return 2 ;;
+        esac
     fi
 }
+
 
 main () {
     if [ $ROOT = true ];
@@ -44,7 +41,7 @@ main () {
     fi
     echo "Running script as user: $USER"
 
-    echo "$FORCE"
+    yesorno "Do you want to procced? "
 
 
 }
