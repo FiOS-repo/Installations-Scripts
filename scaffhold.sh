@@ -1,7 +1,7 @@
 #Configuration
 PACKAGE_MANAGER="apt"
 ROOT=true
-DEPENDENCIES=("curl", "wget", "zip", "unzip", "tar")
+DEPENDENCIES=("curl" "wget" "zip" "unzip" "tar")
 SCRIPTS='echo Hello World'
 UPDATE_PACKAGES=true
 FORCE=$1
@@ -41,7 +41,14 @@ main () {
     fi
     echo "Running script as user: $USER"
 
-    yesorno "Do you want to procced? "
+    if ! yesorno "Do you want to procced? " ; then
+        echo "Installing dependencies"
+        for value in "${DEPENDENCIES[@]}"
+    do
+        echo "Installing: $value";
+        sudo apt install -y $value
+    done
+    fi
 
 
 }
