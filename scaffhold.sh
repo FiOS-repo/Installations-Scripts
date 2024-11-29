@@ -41,13 +41,22 @@ main () {
         fi
     fi
     echo "Running script as user: $USER"
+    if $UPDATE_PACKAGES
+    then
+        if ! yesorno "Do you want to update packages?"
+        then
+            sudo apt update
+            sudo apt upgrade -y
+        fi
+
+    fi
 
     if ! yesorno "Do you want to procced? " ; then
         echo "Installing dependencies"
         for value in "${DEPENDENCIES[@]}"
     do
         echo "Installing: $value";
-        sudo apt install -y $value
+        sudo $PACKAGE_MANAGER install -y $value
     done
     fi
 
@@ -55,15 +64,18 @@ main () {
     for value in "${BUILD_DEPENDENCIES[@]}"
     do
         echo "Installing: $value";
-        sudo apt install -y $value
+        sudo $PACKAGE_MANAGER install -y $value
     done
+
+    $SCRIPTS
+
 
 
     echo "uninstalling build dependencies"
     for value in "${BUILD_DEPENDENCIES[@]}"
     do
         echo "Uninstalling: $value";
-        sudo apt uninstall -y $value
+        sudo $PACKAGE_MANAGER uninstall -y $value
     done
 
 
