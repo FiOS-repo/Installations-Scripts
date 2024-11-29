@@ -2,6 +2,7 @@
 PACKAGE_MANAGER="apt"
 ROOT=true
 DEPENDENCIES=("curl" "wget" "zip" "unzip" "tar")
+BUILD_DEPENDENCIES=("lolcat")
 SCRIPTS='echo Hello World'
 UPDATE_PACKAGES=true
 FORCE=$1
@@ -49,6 +50,22 @@ main () {
         sudo apt install -y $value
     done
     fi
+
+    echo "Installing build dependencies"
+    for value in "${BUILD_DEPENDENCIES[@]}"
+    do
+        echo "Installing: $value";
+        sudo apt install -y $value
+    done
+
+
+    echo "uninstalling build dependencies"
+    for value in "${BUILD_DEPENDENCIES[@]}"
+    do
+        echo "Uninstalling: $value";
+        sudo apt uninstall -y $value
+    done
+
 
 
 }
