@@ -33,15 +33,17 @@ sudo ./<script-name.sh>
 
 If you want to install **Memos**, run:
 ```
-chmod +x install-memos.sh 
-sudo ./install-memos.sh
+chmod +x memos.sh 
+sudo ./memos.sh
 ```
 ---
 ## Current Scripts
 
 | Script Name         | Description                        |
 | ------------------- | ---------------------------------- |
-| `install-memos.sh`  | Installs Docker and deploys Memos. |
+| `memos.sh`          | Installs Docker and deploys Memos. |
+| `wikijs.sh`         | Installs Docker and deploys WikiJS. |
+| `nextcloud.sh`      | Installs Docker and deploys Nextcloud. |
 | _More Coming Soon!_ | Scripts for other applications.    |
 
 ---
