@@ -85,7 +85,7 @@ install_nextcloud() {
     else
         log "Error: Failed to set up Firewall."
     fi
-
+    touch ~/.installation-scripts/nextcloud
     log_success "Nextcloud is now successfully installed!"
     log_success "Access it at http://localhost:8080"
 }
